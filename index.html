@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id" x-data="{isDark: $persist(false)}" :class="{'dark': isDark}" @keyup.ctrl.space="isDark = !isDark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlpineJS multi-step form</title>
+    <meta name="description" content="AlpineJS multi-step form">
+    <meta name="keywords"
+        content="AlpineJS, multi-step form, tailwindCSS, AlpineJS multi-step form, AlpineJS multi-step form tailwindCSS">
+    <meta name="author" content="sejutaimpian">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'selector',
+            theme: {
+                extend: {
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Header: Roboto */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        
+        /* Body: Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+        
+        @layer base {
+            html {
+                font-family: "Inter", system-ui, sans-serif;
+                scroll-behavior: smooth;
+            }
+            body {
+                @apply antialiased min-h-svh;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-family: "Roboto", system-ui, sans-serif;
+                @apply font-semibold text-balance;
+            }
+            h1{
+                @apply text-4xl;
+            }
+            h2{
+                @apply text-3xl;
+            }
+            h3{
+                @apply text-2xl;
+            }
+            h4{
+                @apply text-xl;
+            }
+            h5{
+                @apply text-lg;
+            }
+            h6{
+                @apply text-base;
+            }
+            p {
+                max-width: 75ch;
+                @apply text-pretty;
+            }
+        }
+        @layer utilities {
+            [x-cloak] {
+                display: none !important;
+            }
+
+            /* Hide scrollbar for Chrome, Safari and Opera */
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* Hide scrollbar for IE, Edge and Firefox */
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                /* IE and Edge */
+                scrollbar-width: none;
+                /* Firefox */
+            }
+        }
+    </style>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener("alpine:init", () => {
+            Alpine.data("multiStepForm", () => ({
+                currentStep: 1,
+                steps: [
+                    { title: "Create an Account" },
+                    { title: "Select a plan" },
+                    { title: "Checkout" },
+                    { title: "Get started" },
+                ],
+                isCompleted(index) {
+                    return this.currentStep > index + 1;
+                },
+                isCurrent(index) {
+                    return this.currentStep === index + 1;
+                },
+                isDisabled(index) {
+                    return this.currentStep < index + 1;
+                },
+                nextStep() {
+                    if (this.currentStep < this.steps.length) {
+                        this.currentStep++;
+                    }
+                },
+                previousStep() {
+                    if (this.currentStep > 1) {
+                        this.currentStep--;
+                    }
+                },
+                submitForm() {
+                    // Here you would typically send the form data to a server
+                    console.log("Form submitted!", this.formData);
+                    alert("Form submitted successfully!");
+                },
+            }));
+        });
+    </script>
+</head>
+
+<body class="container mx-auto bg-white text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+    <header class="flex items-center justify-between mx-2 sm:mx-0 mt-4 mb-8">
+        <h1 class="capitalize text-4xl font-bold">Multi-step Form</h1>
+        <a href="https://github.com/sejutaimpian/alpine-multi-step-form" target="_blank"
+            class="[&>svg]:size-6 inline-flex gap-x-2 items-center px-3 py-2 text-md font-medium tracking-wide text-center transition bg-transparent cursor-pointer active:outline outline-slate-300 dark:outline-slate-700 whitespace-nowrap rounded-xl text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 active:opacity-100 active:outline-offset-0 disabled:opacity-75 disabled:cursor-not-allowed dark:text-slate-300 dark:focus-visible:outline-white">
+            <img src="https://img.shields.io/github/stars/sejutaimpian/alpine-multi-step-form?style=social"
+                alt="GitHub Repo stars">
+        </a>
+    </header>
+    <form method="post" action="#" class="space-y-10" x-data="multiStepForm">
+        <!-- Stepper -->
+        <ol class="flex w-full items-center gap-2" aria-label="registration progress">
+            <template x-for="(step, index) in steps" :key="index">
+                <li class="text-sm" x-bind:aria-label="step.title" x-bind:class="{
+                    'flex w-full items-center': index !== 0,
+                }">
+                    <template x-if="index !== 0">
+                        <span class="h-0.5 w-full" aria-hidden="true" x-bind:class="{
+                                'bg-blue-700 dark:bg-blue-600': isCurrent(index) || isCompleted(index),
+                                'bg-slate-300 dark:bg-slate-700': isDisabled(index)
+                            }"></span>
+                    </template>
+                    <div class="flex items-center gap-2" x-bind:class="{ 'pl-2': !isCompleted(index) }">
+                        <span class="flex size-6 items-center justify-center rounded-full border" x-bind:class="{
+                                'border-blue-700 bg-blue-700 text-slate-100 dark:border-blue-600 dark:bg-blue-600 dark:text-slate-100': isCompleted(index) || isCurrent(index),
+                                'font-medium border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300': isDisabled(index),
+                                'font-bold outline outline-2 outline-offset-2 outline-blue-700 dark:outline-blue-600': isCurrent(index),
+                                'flex-shrink-0': isCurrent(index) || isDisabled(index)
+                            }">
+                            <template x-if="isCompleted(index)">
+                                <div>
+                                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                    <span class="sr-only">completed</span>
+                                </div>
+                            </template>
+                            <template x-if="!isCompleted(index)">
+                                <span x-text="index+1"></span>
+                            </template>
+                        </span>
+                        <span class="hidden w-max md:inline" x-text="step.title" x-bind:class="{
+                            'text-blue-700 dark:text-blue-600': !isDisabled(index),
+                            'font-bold': isCurrent(index),
+                            'text-slate-700 dark:text-slate-300': isDisabled(index)
+                        }"></span>
+                    </div>
+                </li>
+            </template>
+        </ol>
+        <!-- Form/Content -->
+        <div x-cloak x-show="currentStep === 1" class="space-y-4 bg-blue-100 h-96">
+            <h2 class="capitalize text-3xl font-bold">Create an Account</h2>
+            <div>
+                Content lorem...
+            </div>
+        </div>
+        <div x-cloak x-show="currentStep === 2" class="space-y-4 bg-blue-100 h-96">
+            <h2 class="capitalize text-3xl font-bold">Select a plan</h2>
+            <div>
+                Content lorem...
+            </div>
+        </div>
+        <div x-cloak x-show="currentStep === 3" class="space-y-4 bg-blue-100 h-96">
+            <h2 class="capitalize text-3xl font-bold">Checkout</h2>
+            <div>
+                Content lorem...
+            </div>
+        </div>
+        <div x-cloak x-show="currentStep === 4" class="space-y-4 bg-blue-100 h-96">
+            <h2 class="capitalize text-3xl font-bold">Get started</h2>
+            <div>
+                Content lorem...
+            </div>
+        </div>
+
+        <!-- Buttons next and previous -->
+        <div class="flex items-center justify-between gap-2">
+            <button type="button" x-show="currentStep !== 1"
+                class="flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                x-on:click="previousStep">
+                <svg class="size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+            </button>
+            <div class="flex-1"></div>
+            <button type="button" x-show="currentStep !== steps.length"
+                class="flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                x-on:click="nextStep">
+                Next
+                <svg class="size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            <button type="submit" x-show="currentStep === steps.length"
+                class="flex items-center gap-2 rounded-full border border-blue-300 bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:border-blue-700 dark:bg-blue-800 dark:text-blue-300 dark:hover:bg-blue-700">
+                Submit
+            </button>
+        </div>
+    </form>
+
+
+</body>
+
+</html>
